@@ -8,46 +8,6 @@ using System.Security.Cryptography;
 
 namespace ChromeRCV
 {
-    internal sealed class ChromiumLogin
-    {
-        string _hostname;
-        string _username;
-        string _password;
-
-        public string Hostname
-        {
-            get {
-                return _hostname;
-            }
-        }
-
-        public string Username
-        {
-            get {
-                return _username;
-            }
-        }
-
-        public string Password
-        {
-            get {
-                return _password;
-            }
-        }
-
-        public ChromiumLogin(string hostname, string username, string password)
-        {
-            _hostname = hostname;
-            _username = username;
-            _password = password;
-        }
-
-        public override string ToString()
-        {
-            return string.Format("{0} - {1} - {2}", _hostname, _username, _password);
-        }
-    }
-
     class Program
     {
         private static string LocalAppdata = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
@@ -103,16 +63,18 @@ namespace ChromeRCV
                 byte[] iv = bytePass.Skip(3).Take(12).ToArray();
                 byte[] encryptedData = bytePass.Skip(15).ToArray();
 
-                return Encoding.Default.GetString(Sodium.SecretAeadAes.Decrypt(encryptedData, iv, key));
+                return Encoding.UTF8.GetString(Sodium.SecretAeadAes.Decrypt(encryptedData, iv, key));
             } else {
                 // chrome version < 80
                 return DPAPIDecrypt(password);
             }
         }
 
-        public static bool GetChromiumLogins(string loginDataPath, byte[] key, ref List<ChromiumLogin> logins)
+        public static void GetChromiumLogins(string loginDataPath, byte[] key, ref List<ChromiumLogin> logins)
         {
-            using (SQLiteConnection conn = new SQLiteConnection("Data Source=" + loginDataPath + ";Version=3;New=True;Compress=True;")) {
+            string tempFile = Utils.CreateTempFile(loginDataPath);
+
+            using (SQLiteConnection conn = new SQLiteConnection("Data Source=" + tempFile + ";Version=3;New=True;Compress=True;")) {
                 conn.Open();
 
                 using (SQLiteCommand comm = conn.CreateCommand()) {
@@ -133,7 +95,11 @@ namespace ChromeRCV
                 }
                 conn.Close();
             }
-            return false;
+            try {
+                File.Delete(tempFile);
+            } catch {
+                Console.WriteLine($"Failed to delete {tempFile.ToUpper()}");
+            }
         }
 
         static void Main(string[] args)
