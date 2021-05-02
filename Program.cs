@@ -86,10 +86,11 @@ namespace ChromeRCV
                             string username = (string)reader["username_value"];
                             string password = Encoding.Default.GetString((byte[])reader["password_value"]);
 
-                            if (string.IsNullOrEmpty(password))
-                                break;
-
-                            logins.Add(new ChromiumLogin(hostname, username, DecryptPassword(password, key)));
+                            var c = new ChromiumLogin();
+                            c.Hostname = hostname;
+                            c.Username = username;
+                            c.Password= DecryptPassword(password, key);
+                            logins.Add(c);
                         }
                     }
                 }
@@ -118,9 +119,17 @@ namespace ChromeRCV
             }
 
             foreach(var login in logins) {
-                Console.WriteLine(login.ToString());
+                if(!string.IsNullOrEmpty(login.Password)) {
+                    login.Print();
+                }
             }
             Console.ReadLine();
         }
+
+        #region cmdvars
+            //private static bool logins  = false;
+            //private static bool cookies = false;
+            //private static bool history = false;
+        #endregion
     }
 }
