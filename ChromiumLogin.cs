@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Text;
 
 namespace ChromeRCV
@@ -11,26 +11,17 @@ namespace ChromeRCV
 
         public string Hostname
         {
-            get
-            {
-                return _hostname;
-            }
+            get { return _hostname; } set { _hostname = value; }
         }
 
         public string Username
         {
-            get
-            {
-                return _username;
-            }
+            get { return _username; } set { _username = value; }
         }
 
         public string Password
         {
-            get
-            {
-                return _password;
-            }
+            get { return _password; } set { _password = value; }
         }
 
         public ChromiumLogin(string hostname, string username, string password)
@@ -40,9 +31,13 @@ namespace ChromeRCV
             _password = password;
         }
 
-        public override string ToString()
+        public ChromiumLogin() { }
+
+        public void Print()
         {
-            return string.Format("{0} - {1} - {2}", _hostname, _username, _password);
+            Console.WriteLine("HOSTNAME:  " + _hostname);
+            Console.WriteLine("USERNAME:  " + _username);
+            Console.WriteLine("PASSWORD:  " + _password + "\r\n");
         }
     }
 }
