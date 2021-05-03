@@ -1,4 +1,4 @@
 # ChromiumRCV
 
 # NOTE
-*Project is unfinished!
+* Project is unfinished!
