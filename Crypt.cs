@@ -42,12 +42,12 @@ namespace ChromeRCV
             return decryptedData;
         }
 
-        public static string DecryptPassword(string password, byte[] key)
+        public static string DecryptData(string data, byte[] key)
         {
             // chrome version >= 80
-            if (password.StartsWith("v10") || password.StartsWith("v11"))
+            if (data.StartsWith("v10") || data.StartsWith("v11"))
             {
-                byte[] bytePass = Encoding.Default.GetBytes(password);
+                byte[] bytePass = Encoding.Default.GetBytes(data);
                 byte[] iv = bytePass.Skip(3).Take(12).ToArray();
                 byte[] encryptedData = bytePass.Skip(15).ToArray();
 
@@ -55,7 +55,7 @@ namespace ChromeRCV
             }
             else {
                 // chrome version < 80
-                return DPAPIDecrypt(password);
+                return DPAPIDecrypt(data);
             }
         }
     }

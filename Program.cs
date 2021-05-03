@@ -19,20 +19,32 @@ namespace ChromeRCV
         {
             Dictionary<string, List<ChromiumLogin>> d = new Dictionary<string, List<ChromiumLogin>>();
 
+            ChromiumLoginManager manager = new ChromiumLoginManager();
             foreach (var browserPath in Browsers) {
                 if (Directory.Exists(browserPath)) {
-                    byte[] key = Crypt.GetMasterKey(browserPath + "\\User Data");
-                    if (key == null)
+                    if(manager.Reinitialize(browserPath) == null)
                         continue;
-
-                    List<ChromiumLogin> logins = new List<ChromiumLogin>();
-                    var browser = Utils.GetBrowserFromPath(browserPath);
-                    var loginDataPath = browserPath + "\\User Data\\Default\\Login Data";
-                    ChromiumLoginManager.GetData(loginDataPath, key, ref logins);
-                    d.Add(browser, logins);
+                    
+                    List<ChromiumLogin> history = manager.GetData();
+                    d.Add(manager.Browser, history);
                 }
             }
             return d;
+        }
+
+        public static Dictionary<string, List<ChromiumHistory>> GetHistory()
+        {   
+            Dictionary<string, List<ChromiumHistory>> d = new Dictionary<string, List<ChromiumHistory>>();
+
+            ChromiumHistoryManager manager = new ChromiumHistoryManager();
+            foreach (var browserPath in Browsers) {
+                if (Directory.Exists(browserPath)) {
+                    List<ChromiumHistory> history = manager.Reinitialize(browserPath).GetData();
+                    d.Add(manager.Browser, history);
+                }
+            }
+            return d;
+             
         }
 
         public static void Usage()
@@ -83,7 +95,19 @@ Arguments:
             }
 
             if(history) {
-                Console.WriteLine("history");
+                Dictionary<string, List<ChromiumHistory>> historyData = GetHistory();
+                foreach (KeyValuePair<string, List<ChromiumHistory>> entry in historyData) {
+                    var browser = entry.Key;
+                    Console.WriteLine($"==={browser.ToUpper()}===");
+
+                    foreach (var historyEntry in entry.Value) {
+                        historyEntry.Print();
+                    }
+                }
+            }
+
+            if(bookmarks) {
+                Console.WriteLine("bookmarks");
             }
             Console.ReadKey();
         }
@@ -92,6 +116,7 @@ Arguments:
             private static bool logins  = false;
             private static bool cookies = false;
             private static bool history = false;
+            private static bool bookmarks = false;
         #endregion
     }
 }

