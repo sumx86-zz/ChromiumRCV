@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -50,24 +50,48 @@ Arguments:
 
         static void Main(string[] args)
         {
-            Dictionary<string, List<ChromiumLogin>> loginData = GetLogins();
-            foreach (KeyValuePair<string, List<ChromiumLogin>> entry in loginData) {
-                var browser = entry.Key;
-                Console.WriteLine($"==={browser.ToUpper()}===");
+            if (args.Length == 0) {
+                Usage();
+                return;
+            }
 
-                foreach (var login in entry.Value) {
-                    if (!string.IsNullOrEmpty(login.Password)) {
-                        login.Print();
+            if (args[0] == "passwords")
+                logins = true;
+
+            else if (args[0] == "cookies")
+                cookies = true;
+
+            else if (args[0] == "history")
+                history = true;
+
+            if(logins) {
+                Dictionary<string, List<ChromiumLogin>> loginData = GetLogins();
+                foreach (KeyValuePair<string, List<ChromiumLogin>> entry in loginData) {
+                    var browser = entry.Key;
+                    Console.WriteLine($"==={browser.ToUpper()}===");
+
+                    foreach (var login in entry.Value) {
+                        if (!string.IsNullOrEmpty(login.Password)) {
+                            login.Print();
+                        }
                     }
                 }
+            }
+
+            if(cookies) {
+                Console.WriteLine("cookies");
+            }
+
+            if(history) {
+                Console.WriteLine("history");
             }
             Console.ReadKey();
         }
 
         #region cmdvars
-            //private static bool logins  = false;
-            //private static bool cookies = false;
-            //private static bool history = false;
+            private static bool logins  = false;
+            private static bool cookies = false;
+            private static bool history = false;
         #endregion
     }
 }
