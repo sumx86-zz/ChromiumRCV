@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 
 namespace ChromeRCV
@@ -15,6 +15,12 @@ namespace ChromeRCV
             string newPath = localAppdata + "//Temp//" + Path.GetRandomFileName();
             File.Copy(filePath, newPath);
             return newPath;
+        }
+
+        public static string GetBrowserFromPath(string path)
+        {
+            var items = path.Split('\\');
+            return string.Concat(new string[] { items[items.Length - 2], " ", items[items.Length - 1] });
         }
     }
 }
