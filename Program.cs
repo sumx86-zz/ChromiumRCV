@@ -1,10 +1,6 @@
 using System;
-using System.Linq;
-using System.Text;
 using System.Collections.Generic;
 using System.IO;
-using System.Data.SQLite;
-using System.Security.Cryptography;
 
 namespace ChromeRCV
 {
@@ -19,111 +15,53 @@ namespace ChromeRCV
             LocalAppdata + "\\Microsoft\\Edge"
         };
 
-        public static byte[] GetMasterKey(string directory)
+        public static Dictionary<string, List<ChromiumLogin>> GetLogins()
         {
-            string filePath = directory + "\\Local State";
+            Dictionary<string, List<ChromiumLogin>> d = new Dictionary<string, List<ChromiumLogin>>();
 
-            if (File.Exists(filePath) == false)
-                return null;
+            foreach (var browserPath in Browsers) {
+                if (Directory.Exists(browserPath)) {
+                    byte[] key = Crypt.GetMasterKey(browserPath + "\\User Data");
+                    if (key == null)
+                        continue;
 
-            string data = File.ReadAllText(filePath);
-            byte[] masterKey = Convert.FromBase64String(SimpleJSON.JSON.Parse(data)["os_crypt"]["encrypted_key"]);
-
-            byte[] temp = new byte[masterKey.Length - 5];
-            Array.Copy(masterKey, 5, temp, 0, masterKey.Length - 5);
-
-            try {
-                return ProtectedData.Unprotect(temp, null, DataProtectionScope.CurrentUser);
-            }
-            catch (Exception ex) {
-                Console.WriteLine(ex.ToString());
-            }
-            return null;
-        }
-
-        public static string DPAPIDecrypt(string encryptedData)
-        {
-            if( encryptedData.Length <= 0 || encryptedData == string.Empty )
-                return string.Empty;
-
-            string decryptedData = Encoding.UTF8.GetString(
-                ProtectedData.Unprotect(
-                    Encoding.Default.GetBytes(encryptedData), null, DataProtectionScope.CurrentUser
-                )
-            );
-            return decryptedData;
-        }
-
-        public static string DecryptPassword(string password, byte[] key)
-        {
-            // chrome version >= 80
-            if (password.StartsWith("v10") || password.StartsWith("v11"))
-            {
-                byte[] bytePass = Encoding.Default.GetBytes(password);
-                byte[] iv = bytePass.Skip(3).Take(12).ToArray();
-                byte[] encryptedData = bytePass.Skip(15).ToArray();
-
-                return Encoding.UTF8.GetString(Sodium.SecretAeadAes.Decrypt(encryptedData, iv, key));
-            } else {
-                // chrome version < 80
-                return DPAPIDecrypt(password);
-            }
-        }
-
-        public static void GetChromiumLogins(string loginDataPath, byte[] key, ref List<ChromiumLogin> logins)
-        {
-            string tempFile = Utils.CreateTempFile(loginDataPath);
-
-            using (SQLiteConnection conn = new SQLiteConnection("Data Source=" + tempFile + ";Version=3;New=True;Compress=True;")) {
-                conn.Open();
-
-                using (SQLiteCommand comm = conn.CreateCommand()) {
-                    comm.CommandText = "SELECT origin_url, username_value, password_value FROM logins";
-
-                    using (SQLiteDataReader reader = comm.ExecuteReader()) {
-                        while (reader.Read()) {
-                            string hostname = (string)reader["origin_url"];
-                            string username = (string)reader["username_value"];
-                            string password = Encoding.Default.GetString((byte[])reader["password_value"]);
-
-                            var c = new ChromiumLogin();
-                            c.Hostname = hostname;
-                            c.Username = username;
-                            c.Password= DecryptPassword(password, key);
-                            logins.Add(c);
-                        }
-                    }
+                    List<ChromiumLogin> logins = new List<ChromiumLogin>();
+                    var browser = Utils.GetBrowserFromPath(browserPath);
+                    var loginDataPath = browserPath + "\\User Data\\Default\\Login Data";
+                    ChromiumLoginManager.GetData(loginDataPath, key, ref logins);
+                    d.Add(browser, logins);
                 }
-                conn.Close();
             }
-            try {
-                File.Delete(tempFile);
-            } catch {
-                Console.WriteLine($"Failed to delete {tempFile.ToUpper()}");
-            }
+            return d;
+        }
+
+        public static void Usage()
+        {
+            Console.WriteLine(
+                @"usage: ./ChromeRCV arg
+Arguments: 
+    cookies   - show all chromium cookies
+    passwords - show all chromium passwords
+    history   - show all chromium history
+    bookmarks - show all chromium bookmarks"
+            );
+            Console.ReadKey();
         }
 
         static void Main(string[] args)
         {
-            List<ChromiumLogin> logins = new List<ChromiumLogin>();
+            Dictionary<string, List<ChromiumLogin>> loginData = GetLogins();
+            foreach (KeyValuePair<string, List<ChromiumLogin>> entry in loginData) {
+                var browser = entry.Key;
+                Console.WriteLine($"==={browser.ToUpper()}===");
 
-            foreach(string browserPath in Browsers) {
-                if(Directory.Exists(browserPath)) {
-                    byte[] key = GetMasterKey(browserPath + "\\User Data");
-                    if (key == null)
-                        return;
-
-                    string loginDataPath = browserPath + "\\User Data\\Default\\Login Data";
-                    GetChromiumLogins(loginDataPath, key, ref logins);
+                foreach (var login in entry.Value) {
+                    if (!string.IsNullOrEmpty(login.Password)) {
+                        login.Print();
+                    }
                 }
             }
-
-            foreach(var login in logins) {
-                if(!string.IsNullOrEmpty(login.Password)) {
-                    login.Print();
-                }
-            }
-            Console.ReadLine();
+            Console.ReadKey();
         }
 
         #region cmdvars
