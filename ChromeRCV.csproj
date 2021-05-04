@@ -51,6 +51,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ChromiumBookmarks.cs" />
     <Compile Include="ChromiumHistory.cs" />
     <Compile Include="ChromiumLogin.cs" />
     <Compile Include="Crypt.cs" />
