@@ -39,7 +39,10 @@ namespace ChromeRCV
             ChromiumHistoryManager manager = new ChromiumHistoryManager();
             foreach (var browserPath in Browsers) {
                 if (Directory.Exists(browserPath)) {
-                    List<ChromiumHistory> history = manager.Reinitialize(browserPath).GetData();
+                    if (manager.Reinitialize(browserPath) == null)
+                        continue;
+
+                    List<ChromiumHistory> history = manager.GetData();
                     d.Add(manager.Browser, history);
                 }
             }
@@ -53,7 +56,10 @@ namespace ChromeRCV
             ChromiumBookmarksManager manager = new ChromiumBookmarksManager();
             foreach (var browserPath in Browsers) {
                 if (Directory.Exists(browserPath)) {
-                    List<ChromiumBookmark> bookmarks = manager.Reinitialize(browserPath).GetData();
+                    if (manager.Reinitialize(browserPath) == null)
+                        continue;
+
+                    List<ChromiumBookmark> bookmarks = manager.GetData();
                     d.Add(manager.Browser, bookmarks);
                 }
             }
