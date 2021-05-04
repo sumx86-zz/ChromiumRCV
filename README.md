@@ -1,4 +1,4 @@
 # ChromiumRCV
 
-# NOTE
-* Project is unfinished!
+# TODO
+* Extract cookies
