@@ -25,8 +25,8 @@ namespace ChromeRCV
                     if(manager.Reinitialize(browserPath) == null)
                         continue;
                     
-                    List<ChromiumLogin> logins = manager.GetData();
-                    d.Add(manager.Browser, logins);
+                    List<ChromiumLogin> history = manager.GetData();
+                    d.Add(manager.Browser, history);
                 }
             }
             return d;
@@ -44,7 +44,20 @@ namespace ChromeRCV
                 }
             }
             return d;
-             
+        }
+
+        public static Dictionary<string, List<ChromiumBookmark>> GetBookmarks()
+        {
+            Dictionary<string, List<ChromiumBookmark>> d = new Dictionary<string, List<ChromiumBookmark>>();
+
+            ChromiumBookmarksManager manager = new ChromiumBookmarksManager();
+            foreach (var browserPath in Browsers) {
+                if (Directory.Exists(browserPath)) {
+                    List<ChromiumBookmark> bookmarks = manager.Reinitialize(browserPath).GetData();
+                    d.Add(manager.Browser, bookmarks);
+                }
+            }
+            return d;
         }
 
         public static void Usage()
@@ -76,7 +89,10 @@ Arguments:
             else if (args[0] == "history")
                 history = true;
 
-            if(logins) {
+            else if (args[0] == "bookmarks")
+                bookmarks = true;
+
+            if (logins) {
                 Dictionary<string, List<ChromiumLogin>> loginData = GetLogins();
                 foreach (KeyValuePair<string, List<ChromiumLogin>> entry in loginData) {
                     var browser = entry.Key;
@@ -107,7 +123,15 @@ Arguments:
             }
 
             if(bookmarks) {
-                Console.WriteLine("bookmarks");
+                Dictionary<string, List<ChromiumBookmark>> bookmarksData = GetBookmarks();
+                foreach (KeyValuePair<string, List<ChromiumBookmark>> entry in bookmarksData) {
+                    var browser = entry.Key;
+                    Console.WriteLine($"\r\n==={browser.ToUpper()}===");
+
+                    foreach (var bookmarkEntry in entry.Value) {
+                        bookmarkEntry.Print();
+                    }
+                }
             }
             Console.ReadKey();
         }

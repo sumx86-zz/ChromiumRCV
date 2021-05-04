@@ -8,23 +8,26 @@ namespace ChromeRCV
 {
     internal sealed class ChromiumHistory
     {
-        string _url;
-        string _title;
-        int _visitcount;
+        private string _url;
+        private string _title;
+        private int _visitcount;
 
         public string Url
         {
-            get { return _url; } set { _url = value; }
+            get { return _url; }
+            set { _url = value; }
         }
 
         public string Title
         {
-            get { return _title; } set { _title = value; }
+            get { return _title; }
+            set { _title = value; }
         }
 
         public int VisitCount
         {
-            get { return _visitcount; } set { _visitcount = value; }
+            get { return _visitcount; }
+            set { _visitcount = value; }
         }
 
         public ChromiumHistory(string url, string title, int visitcount)
@@ -49,9 +52,12 @@ namespace ChromeRCV
         private string _browser;
         private string _browserPath;
         private string _tempFile;
+        private readonly string _historyPath = "\\User Data\\Default\\History";
 
-        public string Browser {
-            get {
+        public string Browser
+        {
+            get
+            {
                 return _browser;
             }
         }
@@ -61,8 +67,12 @@ namespace ChromeRCV
         public ChromiumHistoryManager Reinitialize(string browserPath)
         {
             _browserPath = browserPath;
+            var path = browserPath + _historyPath;
+            if (File.Exists(path) == false)
+                return null;
+
             _browser = Utils.GetBrowserFromPath(browserPath);
-            _tempFile = Utils.CreateTempFile(_browserPath + "\\User Data\\Default\\History");
+            _tempFile = Utils.CreateTempFile(path);
             return this;
         }
 

@@ -8,23 +8,26 @@ namespace ChromeRCV
 {
     internal sealed class ChromiumLogin
     {
-        string _hostname;
-        string _username;
-        string _password;
+        private string _hostname;
+        private string _username;
+        private string _password;
 
         public string Hostname
         {
-            get { return _hostname; } set { _hostname = value; }
+            get { return _hostname; }
+            set { _hostname = value; }
         }
 
         public string Username
         {
-            get { return _username; } set { _username = value; }
+            get { return _username; }
+            set { _username = value; }
         }
 
         public string Password
         {
-            get { return _password; } set { _password = value; }
+            get { return _password; }
+            set { _password = value; }
         }
 
         public ChromiumLogin(string hostname, string username, string password)
@@ -50,10 +53,12 @@ namespace ChromeRCV
         private string _browserPath;
         private string _tempFile;
         private byte[] _masterKey;
+        private readonly string _loginPath = "\\User Data\\Default\\Login Data";
 
         public string Browser
         {
-            get {
+            get
+            {
                 return _browser;
             }
         }
@@ -63,12 +68,16 @@ namespace ChromeRCV
         public ChromiumLoginManager Reinitialize(string browserPath)
         {
             _browserPath = browserPath;
+            var path = browserPath + _loginPath;
+            if (File.Exists(path) == false)
+                return null;
+
             _masterKey = Crypt.GetMasterKey(browserPath + "\\User Data");
             if(_masterKey == null)
                 return null;
             
             _browser = Utils.GetBrowserFromPath(browserPath);
-            _tempFile = Utils.CreateTempFile(_browserPath + "\\User Data\\Default\\Login Data");
+            _tempFile = Utils.CreateTempFile(path);
             return this;
         }
 
