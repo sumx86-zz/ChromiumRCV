@@ -107,7 +107,7 @@ namespace ChromeRCV
             if(!string.IsNullOrEmpty(data)) {
                 foreach(SimpleJSON.JSONNode mark in SimpleJSON.JSON.Parse(data)["roots"]["bookmark_bar"]["children"]) {
                     ChromiumBookmark bookmark = new ChromiumBookmark();
-                    bookmark.DateAdded = TimeZoneInfo.ConvertTimeFromUtc(DateTime.FromFileTimeUtc(10 * Convert.ToInt64((string)mark["date_added"])), TimeZoneInfo.Local).ToString();
+                    bookmark.DateAdded = DateTime.FromFileTime(10 * Convert.ToInt64((string)mark["date_added"])).ToString();
                     bookmark.Guid = mark["guid"];
                     bookmark.ID   = mark["id"];
                     bookmark.Name = mark["name"];
