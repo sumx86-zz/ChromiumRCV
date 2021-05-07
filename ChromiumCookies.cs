@@ -15,7 +15,7 @@ namespace ChromeRCV
         private string _path;
         private bool _secure;
         private bool _httpOnly;
-        private bool _sameSite;
+        private string _sameSite;
 
         public void Print()
         {
