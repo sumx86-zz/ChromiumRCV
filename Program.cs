@@ -66,7 +66,24 @@ namespace ChromeRCV
             return d;
         }
 
-        public static void Usage()
+        public static Dictionary<string, List<ChromiumCookie>> GetCookies()
+        {
+            Dictionary<string, List<ChromiumCookie>> d = new Dictionary<string, List<ChromiumCookie>>();
+
+            ChromiumCookiesManager manager = new ChromiumCookiesManager();
+            foreach (var browserPath in Browsers) {
+                if (Directory.Exists(browserPath)) {
+                    if (manager.Reinitialize(browserPath) == null)
+                        continue;
+
+                    List<ChromiumCookie> cookies = manager.GetData();
+                    d.Add(manager.Browser, cookies);
+                }
+            }
+            return d;
+        }
+
+            public static void Usage()
         {
             Console.WriteLine(
                 @"usage: ./ChromeRCV arg
@@ -100,13 +117,15 @@ Arguments:
 
             if (logins) {
                 Dictionary<string, List<ChromiumLogin>> loginData = GetLogins();
-                foreach (KeyValuePair<string, List<ChromiumLogin>> entry in loginData) {
-                    var browser = entry.Key;
-                    Console.WriteLine($"==={browser.ToUpper()}===");
+                if(loginData.Count > 0) {
+                    foreach (KeyValuePair<string, List<ChromiumLogin>> entry in loginData) {
+                        var browser = entry.Key;
+                        Console.WriteLine($"==={browser.ToUpper()}===");
 
-                    foreach (var login in entry.Value) {
-                        if (!string.IsNullOrEmpty(login.Password)) {
-                            login.Print();
+                        foreach (var login in entry.Value) {
+                            if (!string.IsNullOrEmpty(login.Password)) {
+                                login.Print();
+                            }
                         }
                     }
                 }
@@ -118,24 +137,28 @@ Arguments:
 
             if(history) {
                 Dictionary<string, List<ChromiumHistory>> historyData = GetHistory();
-                foreach (KeyValuePair<string, List<ChromiumHistory>> entry in historyData) {
-                    var browser = entry.Key;
-                    Console.WriteLine($"==={browser.ToUpper()}===");
+                if (historyData.Count > 0) {
+                    foreach (KeyValuePair<string, List<ChromiumHistory>> entry in historyData) {
+                        var browser = entry.Key;
+                        Console.WriteLine($"==={browser.ToUpper()}===");
 
-                    foreach (var historyEntry in entry.Value) {
-                        historyEntry.Print();
+                        foreach (var historyEntry in entry.Value) {
+                            historyEntry.Print();
+                        }
                     }
                 }
             }
 
             if(bookmarks) {
                 Dictionary<string, List<ChromiumBookmark>> bookmarksData = GetBookmarks();
-                foreach (KeyValuePair<string, List<ChromiumBookmark>> entry in bookmarksData) {
-                    var browser = entry.Key;
-                    Console.WriteLine($"\r\n==={browser.ToUpper()}===");
+                if (bookmarksData.Count > 0) {
+                    foreach (KeyValuePair<string, List<ChromiumBookmark>> entry in bookmarksData) {
+                        var browser = entry.Key;
+                        Console.WriteLine($"\r\n==={browser.ToUpper()}===");
 
-                    foreach (var bookmarkEntry in entry.Value) {
-                        bookmarkEntry.Print();
+                        foreach (var bookmarkEntry in entry.Value) {
+                            bookmarkEntry.Print();
+                        }
                     }
                 }
             }
