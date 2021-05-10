@@ -100,7 +100,8 @@ Arguments:
 
         static void Main(string[] args)
         {
-            if (args.Length == 0) {
+            if (args.Length == 0)
+            {
                 Usage();
                 return;
             }
@@ -122,7 +123,7 @@ Arguments:
                 if(loginData.Count > 0) {
                     foreach (KeyValuePair<string, List<ChromiumLogin>> entry in loginData) {
                         var browser = entry.Key;
-                        Console.WriteLine($"==={browser.ToUpper()}===");
+                        Console.WriteLine($"\r\n==={browser.ToUpper()}===");
 
                         foreach (var login in entry.Value) {
                             if (!string.IsNullOrEmpty(login.Password)) {
@@ -134,7 +135,17 @@ Arguments:
             }
 
             if(cookies) {
-                Console.WriteLine("cookies");
+                Dictionary<string, List<ChromiumCookie>> cookiesData = GetCookies();
+                if (cookiesData.Count > 0) {
+                    foreach (KeyValuePair<string, List<ChromiumCookie>> entry in cookiesData) {
+                        var browser = entry.Key;
+                        Console.WriteLine($"\r\n==={browser.ToUpper()}===");
+
+                        foreach (var cookie in entry.Value) {
+                            cookie.Print();
+                        }
+                    }
+                }
             }
 
             if(history) {
@@ -142,7 +153,7 @@ Arguments:
                 if (historyData.Count > 0) {
                     foreach (KeyValuePair<string, List<ChromiumHistory>> entry in historyData) {
                         var browser = entry.Key;
-                        Console.WriteLine($"==={browser.ToUpper()}===");
+                        Console.WriteLine($"\r\n==={browser.ToUpper()}===");
 
                         foreach (var historyEntry in entry.Value) {
                             historyEntry.Print();
