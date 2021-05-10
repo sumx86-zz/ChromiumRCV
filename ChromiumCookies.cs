@@ -127,7 +127,7 @@ namespace ChromeRCV
             ChromiumCookie cookie = new ChromiumCookie();
             cookie.Name     = name;
             cookie.Value    = Crypt.DecryptData(value, _masterKey);
-            cookie.Expires  = DateTime.FromFileTime(10 * Convert.ToInt64(reader["expires_utc"])).ToString();
+            cookie.Expires  = DateTime.FromFileTimeUtc(10 * Convert.ToInt64(reader["expires_utc"])).ToString();
             cookie.Domain   = domain;
             cookie.Path     = path;
             cookie.SameSite = samesite;
