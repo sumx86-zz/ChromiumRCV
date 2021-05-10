@@ -13,6 +13,7 @@ namespace ChromeRCV
             LocalAppdata + "\\Google\\Chrome",
             LocalAppdata + "\\Google(x86)\\Chrome",
             LocalAppdata + "\\Microsoft\\Edge",
+            LocalAppdata + "\\Microsoft\\Edge Beta",
             LocalAppdata + "\\Maxthon\\Application"
         };
 
