@@ -16,7 +16,7 @@ namespace ChromeRCV
         private string _path;
         private Int64 _secure;
         private Int64 _httpOnly;
-        private Int64 _sameSite;
+        private string _sameSite;
 
         public string Name
         {
@@ -66,15 +66,43 @@ namespace ChromeRCV
             set { _secure = value; }
         }
 
-        public Int64 SameSite
+        public string SameSite
         {
             get { return _sameSite; }
             set { _sameSite = value; }
         }
 
+        // source: https://chromium.googlesource.com/chromium/src/net/+/master/extras/sqlite/sqlite_persistent_cookie_store.cc
+        public enum CookieSameSite
+        {
+            SameSiteUnspecified = -1,
+            SameSiteNoRestriction = 0,
+            SameSiteLax = 1,
+            SameSiteStrict = 2,
+            // Deprecated, mapped to SameSiteUnspecified.
+            SameSiteExtended = 3
+        };
+
+        public string SameSiteToString(Int16 samesite)
+        {
+            switch(samesite) {
+                case (Int16) CookieSameSite.SameSiteNoRestriction:
+                    return "no-restriction";
+                case (Int16) CookieSameSite.SameSiteLax:
+                    return "lax";
+                case (Int16) CookieSameSite.SameSiteStrict:
+                    return "Strict";
+                case (Int16) CookieSameSite.SameSiteUnspecified:
+                case (Int16) CookieSameSite.SameSiteExtended:
+                    return "unspecified";
+                default:
+                    return "";
+            }
+        }
+
         public void Print()
         {
-            Console.WriteLine($"{_name}={_value}; Expires={_expires}; Path={_path}; Domain={_domain}; {_secure}; {_httpOnly}; {_sameSite}");
+            Console.WriteLine($"{_name}={_value}; Expires={_expires}; Path={_path}; Domain={_domain}; {_secure}; {_httpOnly}; Samesite={_sameSite}");
         }
     }
 
@@ -120,7 +148,7 @@ namespace ChromeRCV
             string value    = Encoding.Default.GetString((byte[])reader["encrypted_value"]);
 
             Int64 expires   = Convert.ToInt64(reader["expires_utc"]);
-            Int64 samesite  = Convert.ToInt64(reader["samesite"]);
+            Int16 samesite  = Convert.ToInt16(reader["samesite"]);
             Int64 httponly  = Convert.ToInt64(reader["is_httponly"]);
             Int64 secure    = Convert.ToInt64(reader["is_secure"]);
 
@@ -130,7 +158,7 @@ namespace ChromeRCV
             cookie.Expires  = DateTime.FromFileTimeUtc(10 * Convert.ToInt64(reader["expires_utc"])).ToString();
             cookie.Domain   = domain;
             cookie.Path     = path;
-            cookie.SameSite = samesite;
+            cookie.SameSite = cookie.SameSiteToString(samesite);
             cookie.HttpOnly = httponly;
             cookie.Secure   = secure;
             return cookie;
