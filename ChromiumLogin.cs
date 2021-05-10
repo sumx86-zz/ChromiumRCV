@@ -81,6 +81,19 @@ namespace ChromeRCV
             return this;
         }
 
+        public ChromiumLogin ExtractLoginData(SQLiteDataReader reader)
+        {
+            string hostname = (string)reader["origin_url"];
+            string username = (string)reader["username_value"];
+            string password = Encoding.Default.GetString((byte[])reader["password_value"]);
+
+            ChromiumLogin c = new ChromiumLogin();
+            c.Hostname = hostname;
+            c.Username = username;
+            c.Password = Crypt.DecryptData(password, _masterKey);
+            return c;
+        }
+
         public List<ChromiumLogin> GetData()
         {
             List<ChromiumLogin> logins = new List<ChromiumLogin>();
@@ -91,15 +104,7 @@ namespace ChromeRCV
                     using (SQLiteDataReader reader = comm.ExecuteReader()) {
 
                         while (reader.Read()) {
-                            string hostname = (string)reader["origin_url"];
-                            string username = (string)reader["username_value"];
-                            string password = Encoding.Default.GetString((byte[])reader["password_value"]);
-
-                            var c = new ChromiumLogin();
-                            c.Hostname = hostname;
-                            c.Username = username;
-                            c.Password = Crypt.DecryptData(password, _masterKey);
-                            logins.Add(c);
+                            logins.Add(ExtractLoginData(reader));
                         }
                     }
                 }

@@ -19,7 +19,12 @@ namespace ChromeRCV
 
         public void Print()
         {
-
+            // host_key
+            // name
+            // value
+            // path
+            // expires_utc
+            // firstpartyonly or samesite
         }
     }
 

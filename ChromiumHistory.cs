@@ -76,6 +76,19 @@ namespace ChromeRCV
             return this;
         }
 
+        public ChromiumHistory ExtractHistoryData(SQLiteDataReader reader)
+        {
+            string url = reader["url"].ToString();
+            string title = reader["title"].ToString();
+            int visitcount = Convert.ToInt32(reader["visit_count"]);
+
+            ChromiumHistory c = new ChromiumHistory();
+            c.Url = url;
+            c.Title = title;
+            c.VisitCount = visitcount;
+            return c;
+        }
+
         public List<ChromiumHistory> GetData()
         {
             List<ChromiumHistory> history = new List<ChromiumHistory>();
@@ -86,15 +99,7 @@ namespace ChromeRCV
                     using (SQLiteDataReader reader = comm.ExecuteReader()) {
 
                         while (reader.Read()) {
-                            string url = reader["url"].ToString();
-                            string title = reader["title"].ToString();
-                            int visitcount = Convert.ToInt32(reader["visit_count"]);
-
-                            var c = new ChromiumHistory();
-                            c.Url = url;
-                            c.Title = title;
-                            c.VisitCount = visitcount;
-                            history.Add(c);
+                            history.Add(ExtractHistoryData(reader));
                         }
                     }
                 }
