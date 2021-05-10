@@ -89,12 +89,11 @@ namespace ChromeRCV
         public ChromiumBookmarksManager Reinitialize(string browserPath)
         {
             _browserPath = browserPath;
-            _browser = Utils.GetBrowserFromPath(browserPath);
-            
             var path = browserPath + _bookmarksPath;
             if(File.Exists(path) == false)
                 return null;
 
+            _browser = Utils.GetBrowserFromPath(browserPath);
             _tempFile = Utils.CreateTempFile(path);
             return this;
         }
