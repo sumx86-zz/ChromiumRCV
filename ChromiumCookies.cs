@@ -11,11 +11,10 @@ namespace ChromeRCV
         private string _name;
         private string _value;
         private string _expires;
-        private int _maxAge;
         private string _domain;
         private string _path;
-        private Int64 _secure;
-        private Int64 _httpOnly;
+        private string _secure;
+        private string _httpOnly;
         private string _sameSite;
 
         public string Name
@@ -36,12 +35,6 @@ namespace ChromeRCV
             set { _expires = value; }
         }
 
-        public int MaxAge
-        {
-            get { return _maxAge; }
-            set { _maxAge = value; }
-        }
-
         public string Domain
         {
             get { return _domain; }
@@ -54,13 +47,13 @@ namespace ChromeRCV
             set { _path = value; }
         }
 
-        public Int64 HttpOnly
+        public string HttpOnly
         {
             get { return _httpOnly; }
             set { _httpOnly = value; }
         }
 
-        public Int64 Secure
+        public string Secure
         {
             get { return _secure; }
             set { _secure = value; }
@@ -83,17 +76,17 @@ namespace ChromeRCV
             SameSiteExtended = 3
         };
 
-        public string SameSiteToString(Int16 samesite)
+        public string SameSiteToString(int samesite)
         {
             switch(samesite) {
-                case (Int16) CookieSameSite.SameSiteNoRestriction:
+                case (int) CookieSameSite.SameSiteNoRestriction:
                     return "no-restriction";
-                case (Int16) CookieSameSite.SameSiteLax:
+                case (int) CookieSameSite.SameSiteLax:
                     return "lax";
-                case (Int16) CookieSameSite.SameSiteStrict:
+                case (int) CookieSameSite.SameSiteStrict:
                     return "Strict";
-                case (Int16) CookieSameSite.SameSiteUnspecified:
-                case (Int16) CookieSameSite.SameSiteExtended:
+                case (int) CookieSameSite.SameSiteUnspecified:
+                case (int) CookieSameSite.SameSiteExtended:
                     return "unspecified";
                 default:
                     return "";
@@ -142,25 +135,25 @@ namespace ChromeRCV
 
         public ChromiumCookie ExtractCookieData(SQLiteDataReader reader)
         {
-            string name     = (string)reader["name"];
-            string domain   = (string)reader["host_key"];
-            string path     = (string)reader["path"];
-            string value    = Encoding.Default.GetString((byte[])reader["encrypted_value"]);
+            string name   = (string)reader["name"];
+            string domain = (string)reader["host_key"];
+            string path   = (string)reader["path"];
+            string value  = Encoding.Default.GetString((byte[])reader["encrypted_value"]);
 
-            Int64 expires   = Convert.ToInt64(reader["expires_utc"]);
-            Int16 samesite  = Convert.ToInt16(reader["samesite"]);
-            Int64 httponly  = Convert.ToInt64(reader["is_httponly"]);
-            Int64 secure    = Convert.ToInt64(reader["is_secure"]);
+            Int64 expires = Convert.ToInt64(reader["expires_utc"]);
+            int samesite  = Convert.ToInt32(reader["samesite"]);
+            int httponly  = Convert.ToInt32(reader["is_httponly"]);
+            int secure    = Convert.ToInt32(reader["is_secure"]);
 
             ChromiumCookie cookie = new ChromiumCookie();
             cookie.Name     = name;
             cookie.Value    = Crypt.DecryptData(value, _masterKey);
-            cookie.Expires  = DateTime.FromFileTimeUtc(10 * Convert.ToInt64(reader["expires_utc"])).ToString();
+            cookie.Expires  = DateTime.FromFileTimeUtc(10 * expires).ToString();
             cookie.Domain   = domain;
             cookie.Path     = path;
             cookie.SameSite = cookie.SameSiteToString(samesite);
-            cookie.HttpOnly = httponly;
-            cookie.Secure   = secure;
+            cookie.HttpOnly = Convert.ToBoolean(httponly) ? "HttpOnly" : "";
+            cookie.Secure   = Convert.ToBoolean(secure)   ? "Secure"   : "";
             return cookie;
         }
 
