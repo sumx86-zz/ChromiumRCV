@@ -1,4 +1,1 @@
 # ChromiumRCV
-
-# TODO
-* Extract cookies
