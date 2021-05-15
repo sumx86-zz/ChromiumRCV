@@ -31,7 +31,7 @@ namespace ChromeRCV
 
         public static string DPAPIDecrypt(string encryptedData)
         {
-            if (encryptedData.Length <= 0 || encryptedData == string.Empty)
+            if (string.IsNullOrEmpty(encryptedData))
                 return string.Empty;
 
             string decryptedData = Encoding.UTF8.GetString(
@@ -45,7 +45,7 @@ namespace ChromeRCV
         public static string DecryptData(string data, byte[] key)
         {
             // chrome version >= 80
-            if (data.StartsWith("v10") || data.StartsWith("v11"))
+            if (data.StartsWith("v10"))
             {
                 byte[] bytePass = Encoding.Default.GetBytes(data);
                 byte[] iv = bytePass.Skip(3).Take(12).ToArray();
