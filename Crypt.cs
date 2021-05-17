@@ -29,27 +29,26 @@ namespace ChromeRCV
             return null;
         }
 
-        public static string DPAPIDecrypt(string encryptedData)
+        public static string DPAPIDecrypt(byte[] encryptedData)
         {
-            if (string.IsNullOrEmpty(encryptedData))
+            if (encryptedData.Length <= 0 || encryptedData == null)
                 return string.Empty;
 
             string decryptedData = Encoding.UTF8.GetString(
                 ProtectedData.Unprotect(
-                    Encoding.Default.GetBytes(encryptedData), null, DataProtectionScope.CurrentUser
+                    encryptedData, null, DataProtectionScope.CurrentUser
                 )
             );
             return decryptedData;
         }
 
-        public static string DecryptData(string data, byte[] key)
+        public static string DecryptData(byte[] data, byte[] key)
         {
             // chrome version >= 80
-            if (data.StartsWith("v10"))
+            if (IsV10ByteArray(data))
             {
-                byte[] bytePass = Encoding.Default.GetBytes(data);
-                byte[] iv = bytePass.Skip(3).Take(12).ToArray();
-                byte[] encryptedData = bytePass.Skip(15).ToArray();
+                byte[] iv = data.Skip(3).Take(12).ToArray();
+                byte[] encryptedData = data.Skip(15).ToArray();
 
                 return Encoding.UTF8.GetString(Sodium.SecretAeadAes.Decrypt(encryptedData, iv, key));
             }
@@ -57,6 +56,14 @@ namespace ChromeRCV
                 // chrome version < 80
                 return DPAPIDecrypt(data);
             }
+        }
+
+        public static bool IsV10ByteArray(byte[] array)
+        {
+            if (array.Length <= 0 || array == null)
+                return false;
+
+            return array[0] == 'v' && array[1] == '1' && array[2] == '0';
         }
     }
 }

